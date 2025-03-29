@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Schedule</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #ddd; margin: 20px; }
+        .container { max-width: 800px; margin: auto; padding: 20px; border-radius: 10px; background: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #444; }
+        th { background: #555; color: #fff; }
+        .high { background: #ff9800; color: white; }
+        .medium { background: #f1fa8c; color: black; }
+        .low { background: #50fa7b; color: black; }
+        button { cursor: pointer; font-weight: bold; background: #ff9800; color: white; padding: 10px; border-radius: 5px; transition: 0.3s; }
+        button:hover { background: #e68900; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #50fa7b;">📅 Task Schedule</h2>
+        <button onclick="window.location.href='index.html'">🏠 Back to Task Manager</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>📌 Task</th>
+                    <th>📅 Date</th>
+                    <th>⏰ Time</th>
+                    <th>🚦 Priority</th>
+                    <th>👤 Assigned To</th>
+                </tr>
+            </thead>
+            <tbody id="taskTableBody"></tbody>
+        </table>
+    </div>
+    
+    <script>
+        class ScheduleManager {
+            static loadTasks() {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                let tableBody = document.getElementById("taskTableBody");
+                tableBody.innerHTML = "";
+
+                tasks.forEach(task => {
+                    let row = document.createElement("tr");
+                    row.classList.add(task.priority);
+                    row.innerHTML = `
+                        <td>${task.text}</td>
+                        <td>${task.dueDate || 'N/A'}</td>
+                        <td>${task.dueTime || 'N/A'}</td>
+                        <td class="${task.priority}">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</td>
+                        <td>${task.assignedTo || 'Unassigned'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", ScheduleManager.loadTasks);
+    </script>
+</body>
+</html>

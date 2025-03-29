@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #ddd; margin: 20px; }
+        .container { max-width: 700px; margin: auto; padding: 20px; border-radius: 10px; background: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        input, select, button { margin: 5px 0; padding: 10px; width: 100%; border-radius: 5px; border: none; }
+        input, select { background: #666; color: #ddd; transition: 0.3s; }
+        input:focus, select:focus { background: #777; transform: scale(1.02); }
+        button { cursor: pointer; font-weight: bold; background: #ff9800; color: white; transition: 0.3s; }
+        button:hover { background: #e68900; transform: scale(1.05); }
+        ul { list-style: none; padding: 0; }
+        li { background: #444; margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s ease-in-out; opacity: 1; transform: translateX(0); }
+        li:hover { transform: scale(1.02); }
+        .task-enter { animation: slideIn 0.5s ease-in-out; }
+        @keyframes slideIn {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .task-exit { animation: fadeOut 0.4s forwards; }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(0.8); }
+        }
+        .edit, .delete { background: none; border: none; color: white; cursor: pointer; padding: 5px 10px; margin-left: 5px; font-weight: bold; transition: 0.3s; }
+        .edit:hover { color: #50fa7b; transform: scale(1.1); }
+        .delete:hover { color: red; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #50fa7b;">📋 Task Manager</h2>
+        <button onclick="window.location.href='schedule.html'">📅 View Schedule</button>
+        <h3 style="color: #f1fa8c;">Create a Task</h3>
+        <input type="text" id="taskInput" placeholder="Enter task">
+        <input type="date" id="dueDate">
+        <input type="time" id="dueTime">
+        <select id="priority">
+            <option value="high">🔶 High</option>
+            <option value="medium">🟠 Medium</option>
+            <option value="low">🟢 Low</option>
+        </select>
+        <button onclick="TaskManager.addTask()">➕ Add Task</button>
+
+        <h3 style="color: #f1fa8c;">Your Tasks</h3>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        class TaskManager {
+            static loadTasks() {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                let taskList = document.getElementById("taskList");
+                taskList.innerHTML = "";
+
+                tasks.forEach((task, index) => {
+                    let li = document.createElement("li");
+                    li.classList.add("task-enter");
+                    li.innerHTML = `
+                        <span>${task.text} (${task.dueDate} - ${task.dueTime})</span>
+                        <div>
+                            <button class="edit" onclick="TaskManager.editTask(${index})">✏️</button>
+                            <button class="delete" onclick="TaskManager.deleteTask(${index}, this)">🗑️</button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+                });
+            }
+
+            static addTask() {
+                let taskInput = document.getElementById("taskInput").value.trim();
+                let dueDate = document.getElementById("dueDate").value;
+                let dueTime = document.getElementById("dueTime").value;
+                let priority = document.getElementById("priority").value;
+
+                if (!taskInput) return alert("Please enter a task!");
+
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks.push({ text: taskInput, dueDate, dueTime, priority });
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+
+                TaskManager.loadTasks();
+            }
+
+            static deleteTask(index, element) {
+                element.closest("li").classList.add("task-exit");
+                setTimeout(() => {
+                    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                    tasks.splice(index, 1);
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    TaskManager.loadTasks();
+                }, 400);
+            }
+
+            static editTask(index) {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                let newText = prompt("Edit Task:", tasks[index].text);
+                if (newText) {
+                    tasks[index].text = newText;
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    TaskManager.loadTasks();
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", TaskManager.loadTasks);
+    </script>
+</body>
+</html>
